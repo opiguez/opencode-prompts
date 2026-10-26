@@ -1,0 +1,79 @@
+<skill_module id="dry_kiss_clean" version="2.0" category="code_quality" enforcement="STRICT">
+  <meta>
+    <name>DRY, KISS, YAGNI &amp; Clean Code</name>
+    <purpose>
+      Модуль обеспечения простоты, читаемости и отсутствия дублирования.
+      Защищает кодовую базу от оверинжиниринга, копипасты, глубокой вложенности и хрупких конструкций.
+    </purpose>
+  </meta>
+
+  <principles>
+    <principle id="DRY" name="Don't Repeat Yourself (Single Source of Truth)">
+      <rule>
+        Каждое знание, бизнес-правило, константа или схема данных должны иметь единственное, однозначное представление в системе.
+      </rule>
+      <directives>
+        - Перед написанием новой утилиты, парсера, регулярного выражения или константы проверь, нет ли её уже в проекте (`utils`, `shared`, `constants`, `contracts`).
+        - Выноси повторяющиеся магические числа, строки и лимиты в именованные константы или конфигурацию.
+        - Различай истинное дублирование бизнес-знания и случайное внешнее сходство двух разных доменных процессов: не объединяй независимые сущности искусственным общим кодом с десятком булевых флагов (`Rule of Three`).
+      </directives>
+    </principle>
+
+    <principle id="KISS" name="Keep It Simple, Stupid">
+      <rule>
+        Выбирай самое прямолинейное, прозрачное и легко читаемое решение задачи.
+      </rule>
+      <directives>
+        - Простой и понятный код всегда лучше «умного» (clever), запутанного однострочника или многослойной фабрики фабрик.
+        - Используй стандартные конструкции языка и встроенные методы платформы вместо изобретения собственных велосипедов.
+        - Минимизируй количество состояний (state) и мутаций: отдавай предпочтение чистым функциям и иммутабельным преобразованиям данных (`const`, `map`, `filter`, `flatMap`).
+      </directives>
+    </principle>
+
+    <principle id="YAGNI" name="You Aren't Gonna Need It">
+      <rule>
+        Реализуй только то, что требуется для текущей задачи. Никакого кода «про запас».
+      </rule>
+      <directives>
+        - Запрещено добавлять неиспользуемые параметры, опциональные хуки, абстрактные базовые классы с одной реализацией или конфигурационные флаги, которые никто не просил.
+        - Не усложняй интерфейс ради гипотетических будущих сценариев.
+      </directives>
+    </principle>
+
+    <principle id="CLEAN_CODE" name="Clean Code &amp; Readability">
+      <rule>
+        Код пишется для чтения человеком: структура и имена должны говорить сами за себя без комментариев.
+      </rule>
+      <directives>
+        - **Guard Clauses (Ранний выход)**: проверяй граничные условия и ошибки в начале функции и сразу делай `return` / `throw`. Избегай вложенности `if/else` глубже 2 уровней.
+        - **Именование**:
+          - Функции и методы — глаголы или глагольные фразы (`resolveThread`, `calculateModules`, `parseHeader`).
+          - Булевы переменные и предикаты — префиксы `is`, `has`, `should`, `can` (`isValid`, `hasAttachments`, `shouldRetry`).
+          - Коллекции — существительные во множественном числе (`accounts`, `matchedItems`).
+        - **Фокус функции**: одна функция должна помещаться на один экран (ориентир 15–40 строк) и работать на одном уровне абстракции.
+        - **Строгая типизация**: никаких `any`, невалидированных приведений `as unknown as T` и подавления ошибок компилятора.
+        - **Явная обработка ошибок**: не глотай исключения в пустых `catch {}`; если ошибка ожидаема и игнорируется намеренно, возвращай явный результат (`null`, `false`, `Result`).
+      </directives>
+      <bad_example language="typescript">
+        function processUser(u: any) {
+          if (u) {
+            if (u.isActive) {
+              if (u.email) {
+                return send(u.email);
+              } else {
+                return null;
+              }
+            }
+          }
+          return null;
+        }
+      </bad_example>
+      <good_example language="typescript">
+        function notifyActiveUser(user: User | null): SendResult | null {
+          if (!user?.isActive || !user.email) return null;
+          return send(user.email);
+        }
+      </good_example>
+    </principle>
+  </principles>
+</skill_module>

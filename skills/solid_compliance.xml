@@ -1,0 +1,91 @@
+<skill_module id="solid_compliance" version="2.0" category="architecture" enforcement="STRICT">
+  <meta>
+    <name>SOLID &amp; Architectural Compliance</name>
+    <purpose>
+      Модуль строгих архитектурных правил ООП и функционально-модульного дизайна.
+      Обеспечивает низкую связность (Low Coupling), высокую связность внутри модуля (High Cohesion)
+      и защиту архитектурных границ проекта.
+    </purpose>
+  </meta>
+
+  <principles>
+    <principle id="SRP" name="Single Responsibility Principle">
+      <rule>
+        Каждый модуль, класс и функция должны иметь ровно одну зону ответственности и одну причину для изменения.
+      </rule>
+      <directives>
+        - Отделяй чистую бизнес-логику (вычисления, валидацию, маппинг, принятие решений) от транспортного слоя и I/O (HTTP, БД, файловая система, внешние API).
+        - Функция должна либо выполнять действие с побочным эффектом (Command), либо вычислять и возвращать данные (Query), но не смешивать оба поведения скрытым образом.
+        - Если функция превышает разумный размер или делает несколько разнородных шагов (парсинг + сетевой запрос + форматирование + запись в БД), раздели её на специализированные функции и тонкий оркестратор.
+      </directives>
+    </principle>
+
+    <principle id="OCP" name="Open/Closed Principle">
+      <rule>
+        Программные сущности должны быть открыты для расширения, но закрыты для модификации ядра.
+      </rule>
+      <directives>
+        - Вместо разрастающихся каскадов `if/else` или `switch` по типам/режимам используй декларативные таблицы маршрутизации (Registry / Map / Lookup Table) или паттерн Strategy.
+        - Добавление нового типа, правила или обработчика должно сводиться к добавлению новой записи в реестр или нового модуля, не требуя переписывания существующего диспетчера.
+      </directives>
+      <bad_example language="typescript">
+        function handle(type: string, payload: unknown) {
+          if (type === 'a') return processA(payload);
+          else if (type === 'b') return processB(payload);
+          else if (type === 'c') return processC(payload);
+        }
+      </bad_example>
+      <good_example language="typescript">
+        const HANDLERS: Record&lt;Kind, Handler&gt; = {
+          a: processA,
+          b: processB,
+          c: processC,
+        };
+        function handle(kind: Kind, payload: Payload) {
+          return HANDLERS[kind](payload);
+        }
+      </good_example>
+    </principle>
+
+    <principle id="LSP" name="Liskov Substitution Principle">
+      <rule>
+        Реализации интерфейсов, подтипы и взаимозаменяемые обработчики обязаны строго соблюдать контракт базового типа.
+      </rule>
+      <directives>
+        - Не усиливай предусловия (не требуй большего, чем объявлено в сигнатуре интерфейса).
+        - Не ослабляй постусловия (возвращай данные строго в рамках обещанного типа и инвариантов).
+        - Не выбрасывай неожиданные исключения, не предусмотренные контрактом абстракции.
+      </directives>
+    </principle>
+
+    <principle id="ISP" name="Interface Segregation Principle">
+      <rule>
+        Клиенты не должны зависеть от методов и полей, которые они не используют.
+      </rule>
+      <directives>
+        - Передавай в функции и сервисы узкие контракты зависимостей (например, `Pick&lt;Store, 'findById'&gt;` или специализированный интерфейс `Deps`), а не гигантские god-объекты или весь инстанс приложения.
+        - Проектируй узкие, сфокусированные DTO и схемы аргументов для каждого конкретного сценария.
+      </directives>
+    </principle>
+
+    <principle id="DIP" name="Dependency Inversion Principle">
+      <rule>
+        Модули верхнего уровня (доменная логика) не должны зависеть от модулей нижнего уровня (инфраструктура, SDK, драйверы). Оба должны зависеть от абстракций.
+      </rule>
+      <directives>
+        - Не читайте `process.env` напрямую внутри бизнес-модулей — используй централизованный модуль конфигурации и передавай настройки явно.
+        - Инжектируй внешние зависимости (клиенты API, репозитории, часы/таймеры) через параметры или конструктор, чтобы доменная логика оставалась детерминированной и тестируемой без поднятия всей инфраструктуры.
+      </directives>
+    </principle>
+  </principles>
+
+  <architectural_compliance enforcement="STRICT">
+    <rule id="RESPECT_LAYER_BOUNDARIES">
+      Строго соблюдай слои существующего проекта:
+      - `domain/` / `core/` — чистая бизнес-логика, типы, вычисления (без прямых HTTP/DB-вызовов).
+      - `handlers/` / `controllers/` / `services/` — прикладная оркестрация и связывание.
+      - `db/` / `clients/` / `adapters/` — изолированная работа с внешним миром и хранилищами.
+      - `schemas/` / `contracts/` — единые контракты валидации и типы данных.
+    </rule>
+  </architectural_compliance>
+</skill_module>
