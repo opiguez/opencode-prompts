@@ -11,6 +11,7 @@
 ```text
 opencode-prompts/
 ├── README.md                      # Инструкция по подключению и архитектуре
+├── install.mjs                    # Скрипт глобальной установки в ~/.config/opencode (без правки проектов)
 ├── prompts/
 │   ├── plan_core.xml              # Надстройка фазы Plan (Архитектор + Селектор Скилов)
 │   └── build_core.xml             # Надстройка фазы Build (Строгий Исполнитель кода)
@@ -37,17 +38,45 @@ opencode-prompts/
 
 ## Быстрое подключение к OpenCode v2
 
-В OpenCode v2 встроенные агенты `plan` и `build` кастомизируются напрямую через `opencode.json` / `opencode.jsonc` (на уровне проекта или глобально в `~/.config/opencode/opencode.jsonc`) с помощью подстановки `{file:...}` и массива `instructions`.
+### Вариант 1 (Рекомендуемый): Глобальная установка в `~/.config/opencode` (без правки проектов)
 
-### Вариант 1: Подключение в `opencode.json` проекта (или глобально)
-
-Склонируйте репозиторий рядом с вашим проектом (или в `~/opencode-prompts`):
+Чтобы **не менять локальный `opencode.json` в каждом проекте** и не зависеть от того, в какой папке лежат проекты, установите промты и скилы один раз в глобальную конфигурацию OpenCode (`~/.config/opencode`):
 
 ```bash
 git clone https://github.com/opiguez/opencode-prompts.git
+cd opencode-prompts
+node install.mjs
+opencode service restart
 ```
 
-Добавьте в ваш `opencode.json` (или `~/.config/opencode/opencode.jsonc`) конфигурацию надстройки для встроенных агентов `plan` и `build`:
+Что делает `node install.mjs`:
+1. Копирует `prompts/` и `skills/` напрямую в `~/.config/opencode/prompts` и `~/.config/opencode/skills` (OpenCode v2 автоматически находит все скилы в `~/.config/opencode/skills` для любого проекта на диске).
+2. Бережно обновляет глобальный `~/.config/opencode/opencode.jsonc` (сохраняя ваши `provider`/`model`), подключая надстройку `plan` и `build` через пути `~/.config/opencode/...`:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "~/.config/opencode/skills/context_hygiene.xml"
+  ],
+  "agents": {
+    "plan": {
+      "hidden": false,
+      "system": "{file:~/.config/opencode/prompts/plan_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}"
+    },
+    "build": {
+      "hidden": false,
+      "system": "{file:~/.config/opencode/prompts/build_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}\n{file:~/.config/opencode/skills/solid_compliance.xml}\n{file:~/.config/opencode/skills/dry_kiss_clean.xml}"
+    }
+  }
+}
+```
+
+Локальные `opencode.json` ваших проектов трогать не нужно — OpenCode v2 автоматически объединяет глобальный конфиг с проектным.
+
+### Вариант 2: Локальное подключение в конкретный проект
+
+Если нужно подключить правила только к одному проекту (без глобальной установки), добавьте в `opencode.json` проекта:
 
 ```jsonc
 {
