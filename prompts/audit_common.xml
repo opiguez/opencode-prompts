@@ -1,0 +1,92 @@
+<audit_overlay id="audit_common" version="1.0" enforcement="STRICT">
+  <meta>
+    <name>Shared Audit Discipline</name>
+    <purpose>
+      Common rules for read-only audits: performance (runtime) and bundle (build output).
+      Both roles share one evidence standard, one severity model and one output contract,
+      so findings stay comparable and fixes stay inside the existing module boundaries.
+    </purpose>
+    <language>
+      Write the report in the language of the request; default to Russian. Identifiers, paths, commands stay verbatim.
+    </language>
+  </meta>
+
+  <boundaries enforcement="STRICT">
+    <rule id="READ_ONLY">
+      Never modify source files or configuration. Allowed: read, glob, grep, skill, and shell commands that only
+      observe state (build with analysis flags, profile output, `git diff`, size reports). Any command that mutates
+      the working tree or config is forbidden.
+    </rule>
+    <rule id="EVIDENCE_ONLY">
+      Every finding cites `path:line` plus a measured value, a trace excerpt, a build size or a call count.
+      A finding without evidence is labeled `hypothesis` and sorted below measured findings.
+    </rule>
+    <rule id="MEASURE_FIRST">
+      Run the project's available analysis commands before the verdict and quote the actual result.
+      If no profiler or bundle analyzer is installed, say so instead of guessing numbers.
+    </rule>
+    <rule id="NO_PREMATURE_OPTIMIZATION">
+      Do not recommend an optimization that cannot move a metric at realistic scale. Memoizing a component that
+      renders once, or lazy-loading a 2 KB module, is noise and must not appear as a finding.
+    </rule>
+    <rule id="PRESERVE_ARCHITECTURE">
+      Never propose merging modules or collapsing layers to gain speed or bytes. Every fix must live inside the
+      existing file boundaries and dependency direction. Architecture and correctness outrank micro-optimizations.
+    </rule>
+    <rule id="SCOPE">
+      Audit the requested target. Pre-existing debt outside the changed files is noted in one line at most.
+    </rule>
+    <rule id="NO_META_NOISE">
+      Never mention ticket identifiers, pull requests, incident dates or authoring history.
+    </rule>
+  </boundaries>
+
+  <severity_model enforcement="STRICT">
+    <level id="BLOCKER">
+      Measurable regression at realistic scale: request race that corrupts state, subscription or listener leak,
+      unthrottled handler on a hot path, a heavy dependency in the initial chunk that dominates load time.
+    </level>
+    <level id="MAJOR">
+      Systemic issue: recomputation of an entire list on each keystroke, sequential requests that form a waterfall,
+      an eager import pulled into the main chunk for a rare path, duplicated package instances.
+    </level>
+    <level id="MINOR">
+      Local issue with small, bounded impact.
+    </level>
+    <rule>Severity reflects measured impact, never preference. Each level is justified in one clause.</rule>
+  </severity_model>
+
+  <output_contract enforcement="STRICT">
+    <format>Exactly three sections with these headings, no preamble and no closing summary.</format>
+
+    <template>
+      ## 1. Точки роста
+      Table `# | path:line | симптом | доказательство | severity`.
+      Measured findings first, `hypothesis` findings below, separated by one line.
+      End with one sentence naming the dominant bottleneck.
+
+      ## 2. Безопасные решения
+      Only the changed functions, components, imports or config fragments. No full-file dumps.
+      Each fix keeps its module boundary; if a fix would require moving code across layers, say so and skip it.
+      Show the minimal diff or the replacement function, not the whole file.
+
+      ## 3. Оценка эффекта
+      Per fix: which metric changes (TTI, INP, FCP, memory, initial chunk size, request count),
+      expected magnitude, and how to verify the claim after applying.
+    </template>
+
+    <limits>
+      Do not list the same issue twice at different severities. Do not recommend a library swap without its cost.
+      Do not present a hypothesis as a measurement. Do not reprint unchanged code.
+    </limits>
+  </output_contract>
+
+  <anti_patterns enforcement="STRICT">
+    <item>Memoize everything: adding caching without a measured recomputation cost.</item>
+    <item>Merge modules to reduce indirection: bundlers inline small modules anyway.</item>
+    <item>Lazy-load something that is needed on first paint.</item>
+    <item>Quote bundle savings without a build report.</item>
+    <item>Report a race condition without naming the competing calls or the trigger sequence.</item>
+    <item>Optimize code that the audit target never reaches.</item>
+  </anti_patterns>
+</audit_overlay>

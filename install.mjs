@@ -10,6 +10,7 @@ const configHome = process.env.XDG_CONFIG_HOME
 
 const targetPrompts = path.join(configHome, 'prompts');
 const targetSkills = path.join(configHome, 'skills');
+const targetCommands = path.join(configHome, 'commands');
 
 fs.mkdirSync(configHome, { recursive: true });
 fs.cpSync(path.join(rootDir, 'prompts'), targetPrompts, {
@@ -17,6 +18,10 @@ fs.cpSync(path.join(rootDir, 'prompts'), targetPrompts, {
   force: true,
 });
 fs.cpSync(path.join(rootDir, 'skills'), targetSkills, {
+  recursive: true,
+  force: true,
+});
+fs.cpSync(path.join(rootDir, 'commands'), targetCommands, {
   recursive: true,
   force: true,
 });
@@ -61,6 +66,51 @@ currentConfig.agents = {
     hidden: false,
     system:
       '{file:~/.config/opencode/prompts/build_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}\n{file:~/.config/opencode/skills/solid_compliance.xml}\n{file:~/.config/opencode/skills/dry_kiss_clean.xml}',
+  },
+  reviewer: {
+    ...(currentConfig.agents?.reviewer ?? {}),
+    hidden: false,
+    mode: 'subagent',
+    description:
+      'Independent Senior Code Reviewer for before/after refactors: logic parity, SRP, coupling, DRY, complexity. Read-only.',
+    system:
+      '{file:~/.config/opencode/prompts/review_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}',
+    permissions: [
+      { action: 'edit', resource: '*', effect: 'deny' },
+    ],
+  },
+  refactorer: {
+    ...(currentConfig.agents?.refactorer ?? {}),
+    hidden: false,
+    mode: 'all',
+    description:
+      'Refactors fat files into cohesive modules by measured metrics: SRP boundaries, DIP seams, DRY, guard clauses. Preserves behavior.',
+    system:
+      '{file:~/.config/opencode/prompts/refactor_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}\n{file:~/.config/opencode/skills/solid_compliance.xml}\n{file:~/.config/opencode/skills/dry_kiss_clean.xml}',
+  },
+  'perf-auditor': {
+    ...(currentConfig.agents?.['perf-auditor'] ?? {}),
+    hidden: false,
+    mode: 'subagent',
+    description:
+      'Runtime performance audit: re-renders, unstable references, async races, data structures, leaks. Read-only, evidence-based.',
+    system:
+      '{file:~/.config/opencode/prompts/audit_common.xml}\n{file:~/.config/opencode/prompts/perf_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}',
+    permissions: [
+      { action: 'edit', resource: '*', effect: 'deny' },
+    ],
+  },
+  'bundle-auditor': {
+    ...(currentConfig.agents?.['bundle-auditor'] ?? {}),
+    hidden: false,
+    mode: 'subagent',
+    description:
+      'Bundle audit: tree shaking, code splitting, dependency weight, CSS and assets. Read-only, report-driven.',
+    system:
+      '{file:~/.config/opencode/prompts/audit_common.xml}\n{file:~/.config/opencode/prompts/bundle_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}',
+    permissions: [
+      { action: 'edit', resource: '*', effect: 'deny' },
+    ],
   },
 };
 

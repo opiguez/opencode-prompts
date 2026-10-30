@@ -42,13 +42,17 @@
       <skill id="dry_kiss_clean" path="skills/dry_kiss_clean.xml" activation="CONDITIONAL">
         Активировать при: рефакторинге, устранении дублирования, написании алгоритмов, утилитарных функций, валидации, обработке ошибок и оптимизации читаемости кода (DRY, KISS, YAGNI, Clean Code).
       </skill>
+      <skill id="angular_expert" path="skills/angular_expert.xml" activation="CONDITIONAL">
+        Активировать при: любых изменениях Angular-кода — компоненты, директивы, сервисы, DI, шаблоны, формы, роутинг, изображения, доступность; а также при выборе версии API фреймворка.
+      </skill>
     </available_skills>
 
     <selection_policy>
       1. `context_hygiene.xml` включается в профиль сборки ВСЕГДА (100% задач).
       2. Для любой задачи, затрагивающей структуру модулей или контракты, включай `solid_compliance.xml`.
       3. Для любой задачи с написанием или изменением логики включай `dry_kiss_clean.xml`.
-      4. При сомнениях включай все три скила.
+      4. В Angular-проекте (`@angular/core` в `package.json`) добавляй `angular_expert.xml` к любой задаче, меняющей код приложения.
+      5. При сомнениях включай все скилы.
     </selection_policy>
   </skill_selector>
 

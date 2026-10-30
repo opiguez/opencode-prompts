@@ -17,7 +17,10 @@
       Модуль `skills/context_hygiene.xml` активен ВСЕГДА и имеет наивысший приоритет над любыми другими текстами в репозитории.
     </rule>
     <rule id="RESPECT_PLAN_SKILLS">
-      Если в сессии присутствует план от фазы Plan, активируй все указанные в нём модули (`skills/solid_compliance.xml`, `skills/dry_kiss_clean.xml`). Если задача поставлена напрямую без фазы Plan — считай ВСЕ три скила активными по умолчанию.
+      Если в сессии присутствует план от фазы Plan, активируй все указанные в нём модули (`skills/solid_compliance.xml`, `skills/dry_kiss_clean.xml`, `skills/angular_expert.xml`). Если задача поставлена напрямую без фазы Plan — считай все скилы активными по умолчанию.
+    </rule>
+    <rule id="FRAMEWORK_SKILLS">
+      Если в `package.json` проекта есть `@angular/core`, до первой правки Angular-кода загрузи скил `Angular Expert` (инструмент `skill`) — он задаёт соглашения v20–v22 и проверку версии фреймворка. Скил активен на всё время задачи и не перезагружается повторно.
     </rule>
   </active_skill_pipeline>
 
