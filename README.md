@@ -55,7 +55,7 @@ opencode-prompts/
 | `prompts/perf_core.xml` | **Audit (runtime)** | Ререндеры и производные вычисления, стабильность ссылок, частотные события, структуры данных, гонки запросов, утечки, виртуализация списков. Только чтение. |
 | `prompts/bundle_core.xml` | **Audit (bundle)** | Tree shaking и barrel-файлы, route/component-level splitting, вес зависимостей и полифилов, CSS и ассеты, дубли пакетов. Только чтение. |
 | `prompts/ui_core.xml` | **Audit (UI)** | A11y и семантика, клавиатура и фокус, формы, анимация, контент, локаль, гидрация. Только чтение. |
-| `prompts/ui_designer_core.xml` | **Design (planner)** | Аудит существующей поверхности, направление для новой, motion. Пишет только `design-plans/`, код не трогает. |
+| `prompts/ui_designer_core.xml` | **Design (planner)** | Аудит существующей поверхности, направление для новой, motion. Пишет `design-plans/` со статусом и базовым коммитом, код не трогает. |
 | `skills/context_hygiene.xml` | **Plan + Build (Всегда)** | Высший приоритет (`CRITICAL`). Запрещает любые упоминания тикетов (`#123`, `issue`), PR, дат инцидентов, старого кода, `TODO`/`FIXME` и мусорных комментариев. |
 | `skills/solid_compliance.xml` | **Build (по выбору Plan)** | Контролирует SRP (отделение чистой логики от I/O), OCP (реестры/маппинги вместо `if/else`), LSP, ISP (узкие `Deps`-интерфейсы) и DIP. |
 | `skills/dry_kiss_clean.xml` | **Build (по выбору Plan)** | Контролирует единый источник истины (DRY), простоту решений (KISS), отсутствие кода «на будущее» (YAGNI), Guard Clauses и строгую типизацию без `any`. |
