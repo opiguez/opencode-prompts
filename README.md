@@ -19,22 +19,24 @@ opencode-prompts/
 │   ├── refactor_core.xml          # Надстройка Refactor (аудит fat files → модульная структура)
 │   ├── audit_common.xml           # Общее ядро аудитов: read-only, доказательства, severity, формат отчёта
 │   ├── perf_core.xml              # Runtime-аудит: ререндеры, частотные события, гонки, утечки
-│   └── bundle_core.xml            # Bundle-аудит: tree shaking, code splitting, зависимости, ассеты
+│   ├── bundle_core.xml            # Bundle-аудит: tree shaking, code splitting, зависимости, ассеты
+│   └── ui_core.xml                # UI-аудит: a11y, клавиатура и фокус, формы, анимация, i18n
 ├── commands/
 │   ├── review.md                  # Команда /review: diff в контекст + запуск ревьюера в дочерней сессии
 │   ├── refactor.md                # Команда /refactor: запуск рефакторинга в текущей сессии
 │   ├── perf.md                    # Команда /perf: runtime-аудит в дочерней сессии
-│   └── bundle.md                  # Команда /bundle: bundle-аудит в дочерней сессии
+│   ├── bundle.md                  # Команда /bundle: bundle-аудит в дочерней сессии
+│   └── ui-audit.md                # Команда /ui-audit: UI-аудит в дочерней сессии
 └── skills/
     ├── context_hygiene.xml        # [АКТИВЕН ВСЕГДА] Антидот против мета-контекста и мусорных комментариев
     ├── solid_compliance.xml       # Модуль архитектурной дисциплины и ООП (SOLID)
     ├── dry_kiss_clean.xml         # Модуль чистоты, простоты и читаемости кода (DRY/KISS/YAGNI)
-    ├── angular_expert.xml         # Модуль идиоматичного Angular (сигналы, standalone, формы, DI, a11y)
+    ├── angular_expert.xml         # Модуль идиоматичного Angular (сигналы, standalone, формы, DI, a11y, перф)
     ├── context_hygiene/SKILL.md   # Нативный пакет скила для инструмента `skill` в OpenCode v2
     ├── solid_compliance/SKILL.md  # Нативный пакет скила для инструмента `skill` в OpenCode v2
     ├── dry_kiss_clean/SKILL.md    # Нативный пакет скила для инструмента `skill` в OpenCode v2
     ├── angular_expert/SKILL.md    # Нативный пакет скила для инструмента `skill` в OpenCode v2
-    └── angular_expert/references/setup.md  # Настройка под проект: версии API, вызов скила, MCP
+    └── angular_expert/references/{setup,performance}.md  # Настройка проекта и каталог правил производительности
 ```
 
 ### Роли модулей в пайплайне
@@ -47,10 +49,11 @@ opencode-prompts/
 | `prompts/refactor_core.xml` | **Refactor** | Аудит fat files по метрикам (размер файла, длина функции, вложенность, цикломатика, число аргументов), проектирование целевой структуры и поэтапное извлечение модулей с проверкой сборки на каждом шаге. |
 | `prompts/perf_core.xml` | **Audit (runtime)** | Ререндеры и производные вычисления, стабильность ссылок, частотные события, структуры данных, гонки запросов, утечки, виртуализация списков. Только чтение. |
 | `prompts/bundle_core.xml` | **Audit (bundle)** | Tree shaking и barrel-файлы, route/component-level splitting, вес зависимостей и полифилов, CSS и ассеты, дубли пакетов. Только чтение. |
+| `prompts/ui_core.xml` | **Audit (UI)** | A11y и семантика, клавиатура и фокус, формы, анимация, контент, локаль, гидрация. Только чтение. |
 | `skills/context_hygiene.xml` | **Plan + Build (Всегда)** | Высший приоритет (`CRITICAL`). Запрещает любые упоминания тикетов (`#123`, `issue`), PR, дат инцидентов, старого кода, `TODO`/`FIXME` и мусорных комментариев. |
 | `skills/solid_compliance.xml` | **Build (по выбору Plan)** | Контролирует SRP (отделение чистой логики от I/O), OCP (реестры/маппинги вместо `if/else`), LSP, ISP (узкие `Deps`-интерфейсы) и DIP. |
 | `skills/dry_kiss_clean.xml` | **Build (по выбору Plan)** | Контролирует единый источник истины (DRY), простоту решений (KISS), отсутствие кода «на будущее» (YAGNI), Guard Clauses и строгую типизацию без `any`. |
-| `skills/angular_expert.xml` | **Build (по выбору Plan)** | Идиоматичный Angular v20–v22: сигналы, standalone, типизированные формы, `inject()`, нативные шаблоны, a11y. Версионные guard'ы и настройка окружения — в `skills/angular_expert/references/`. |
+| `skills/angular_expert.xml` | **Build (по выбору Plan)** | Идиоматичный Angular v20–v22: сигналы, standalone, типизированные формы, `inject()`, нативные шаблоны, a11y и производительность. Версионные guard'ы и настройка окружения — в `skills/angular_expert/references/`. |
 
 ### Два формата одного модуля
 
@@ -91,7 +94,7 @@ opencode-prompts/
 
 ### Роли Review, Refactor и аудиты: почему агенты, а не скилы
 
-Ревью требует изолированного контекста (чтобы не оценивать собственные правки) и права только читать, поэтому роль оформлена агентом `reviewer` (`mode: subagent`). Рефакторинг меняет файлы и должен уметь вести диалог по плану, поэтому `refactorer` — агент с `mode: all`. Аудиты производительности и бандла тоже только читают и потому живут как субагенты. Команды `/review`, `/refactor`, `/perf`, `/bundle` — ярлыки запуска.
+Ревью требует изолированного контекста (чтобы не оценивать собственные правки) и права только читать, поэтому роль оформлена агентом `reviewer` (`mode: subagent`). Рефакторинг меняет файлы и должен уметь вести диалог по плану, поэтому `refactorer` — агент с `mode: all`. Аудиты производительности, бандла и интерфейса тоже только читают и потому живут как субагенты. Команды `/review`, `/refactor`, `/perf`, `/bundle`, `/ui-audit` — ярлыки запуска.
 
 | Механизм | Что даёт | Ограничение |
 | :--- | :--- | :--- |
@@ -104,22 +107,23 @@ opencode-prompts/
 - `/review` — подставляет `git status`, `git diff --stat` и `git diff`, затем запускает `reviewer` в дочерней сессии.
 - `/refactor <путь>` — запускает `refactorer` в текущей сессии, чтобы план и правки шли в одном диалоге. Без аргумента выбираются самые крупные файлы.
 - `/perf [цель]` и `/bundle [цель]` — дочерняя сессия с аудитором; без аргумента аудит идёт по изменениям в рабочем дереве.
+- `/ui-audit [цель]` — дочерняя сессия с UI-аудитором.
 - «Запусти ревьюера на текущий диф» — primary-агент сам вызовет субагента.
 - `@` в OpenCode адресует файлы и скилы (`@angular_expert`), но не агентов: `@reviewer` не сработает.
 
-### Почему два аудита, а не один
+### Почему аудиты разделены
 
 Это разные вопросы, разные инструменты и разные симптомы:
 
-| | Runtime (`/perf`) | Bundle (`/bundle`) |
-| :--- | :--- | :--- |
-| Вопрос | почему лагает взаимодействие | почему долго грузится первый экран |
-| Инструмент | профайлер, Web Vitals, трейсы long tasks | production build + анализатор бандла |
-| Типичный вывод | debounce, мемоизация, `Promise.all`, отмена запросов | dynamic import, cherry-picked импорты, замена библиотеки, splitting |
+| | Runtime (`/perf`) | Bundle (`/bundle`) | UI (`/ui-audit`) |
+| :--- | :--- | :--- | :--- |
+| Вопрос | почему лагает | почему долго грузится | почему сценарий недоступен |
+| Инструмент | профайлер, Web Vitals | build + анализатор | axe/Lighthouse, обход с клавиатуры |
+| Вывод | debounce, `Promise.all`, отмена | dynamic import, splitting | имя контрола, `:focus-visible`, `label` |
 
-Один склеенный промт заставляет модель смешивать методики: советовать `memo` там, где проблема в размере чанка, или ленивую загрузку вместо устранения гонки. Поэтому — два тонких промта на общем ядре `prompts/audit_common.xml`: read-only, доказательства с `path:line`, severity, единый формат отчёта. DRY соблюдён без потери фокуса: общее ядро меняется один раз и действует на оба аудита.
+Склеенный промт смешивает методики: `memo` вместо размера чанка, ленивую загрузку вместо устранения гонки, `aria-label` вместо виртуализации. Поэтому — три тонких промта на общем ядре `prompts/audit_common.xml`: read-only, `path:line`, severity, единый формат. Ядро меняется один раз и действует на все аудиты.
 
-`install.mjs` копирует `commands/` в `~/.config/opencode/commands` и регистрирует агентов: `reviewer`, `perf-auditor` и `bundle-auditor` — с запретом `edit`; `refactorer` — со скилами SOLID и DRY в системном промте.
+`install.mjs` копирует `commands/` в `~/.config/opencode/commands` и регистрирует агентов: `reviewer`, `perf-auditor`, `bundle-auditor` и `ui-auditor` — с запретом `edit`; `refactorer` — со скилами SOLID и DRY в системном промте.
 
 ---
 
@@ -211,3 +215,7 @@ opencode service restart
 3. **Режим Build / Code / Act:**
    Вставьте в системное дополнение режима написания кода:
    `prompts/build_core.xml` + `skills/context_hygiene.xml` + `skills/solid_compliance.xml` + `skills/dry_kiss_clean.xml`.
+
+## Источники
+
+Каталог производительности — адаптация [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (MIT, © Vercel); чеклист UI — [web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines) (MIT, © Vercel); API и версии Angular — [angular.dev](https://angular.dev).
