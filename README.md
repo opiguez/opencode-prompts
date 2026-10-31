@@ -41,7 +41,7 @@ opencode-prompts/
     ├── angular_expert/references/{setup,performance}.md  # Настройка проекта и каталог правил производительности
     ├── ui_design.xml              # Правила дизайна: токены, иерархия, состояния, motion
     ├── ui_design/SKILL.md         # Нативный пакет скила для инструмента `skill` в OpenCode v2
-    └── ui_design/references/      # plan-template.md и motion.md
+    └── ui_design/references/      # plan-template.md, motion.md, setup.md (Playwright MCP)
 ```
 
 ### Роли модулей в пайплайне

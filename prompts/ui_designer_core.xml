@@ -46,6 +46,7 @@
     <rule id="RENDERED_EVIDENCE">
       Иерархию, плотность, контраст и «ощущение» оценивай по отрендеренному экрану через Playwright:
       `navigate` → `snapshot` → `screenshot`. Без рендера такие находки помечай `hypothesis`.
+      Если инструментов Playwright в сессии нет, скажи об этом и не описывай несуществующий рендер.
     </rule>
   </preconditions>
 

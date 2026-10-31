@@ -143,5 +143,6 @@ description: Правила проектирования интерфейса �
   <references>
     Шаблон плана и правила хендоффа — `references/plan-template.md`.
     Motion: категории, частоты, кривые и длительности — `references/motion.md`.
+    Установка Playwright MCP и права — `references/setup.md`.
   </references>
 </skill_module>

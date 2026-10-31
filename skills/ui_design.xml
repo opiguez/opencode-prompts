@@ -138,5 +138,6 @@
   <references>
     Шаблон плана и правила хендоффа — `ui_design/references/plan-template.md`.
     Motion: категории, частоты, кривые и длительности — `ui_design/references/motion.md`.
+    Установка Playwright MCP и права — `ui_design/references/setup.md`.
   </references>
 </skill_module>
