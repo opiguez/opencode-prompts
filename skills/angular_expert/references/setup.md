@@ -10,8 +10,11 @@
 | :--- | :--- |
 | `standalone: true` обязателен в декораторе | до v19 |
 | `input()`, `output()` | v17.1 |
+| `@defer` в шаблоне | v17 |
 | `model()` | v17.2 |
 | `linkedSignal()` | v19 |
+| `resource()` для загрузки данных | v19 |
+| `provideAppInitializer()` | v19 |
 | `OnPush` по умолчанию (не указывать явно) | v22 |
 | `@Service` вместо `Injectable({providedIn: 'root'})` | v22 |
 | Signal Forms (`@angular/forms/signals`) | v22 |
