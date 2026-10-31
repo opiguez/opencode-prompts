@@ -112,6 +112,18 @@ currentConfig.agents = {
       { action: 'edit', resource: '*', effect: 'deny' },
     ],
   },
+  'ui-auditor': {
+    ...(currentConfig.agents?.['ui-auditor'] ?? {}),
+    hidden: false,
+    mode: 'subagent',
+    description:
+      'UI audit: accessibility, keyboard and focus, forms, motion, content, i18n. Read-only, evidence-based.',
+    system:
+      '{file:~/.config/opencode/prompts/audit_common.xml}\n{file:~/.config/opencode/prompts/ui_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}',
+    permissions: [
+      { action: 'edit', resource: '*', effect: 'deny' },
+    ],
+  },
 };
 
 fs.writeFileSync(

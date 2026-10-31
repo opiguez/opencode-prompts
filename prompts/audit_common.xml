@@ -2,8 +2,8 @@
   <meta>
     <name>Shared Audit Discipline</name>
     <purpose>
-      Common rules for read-only audits: performance (runtime) and bundle (build output).
-      Both roles share one evidence standard, one severity model and one output contract,
+      Common rules for read-only audits: performance (runtime), bundle (build output) and interface (a11y/UX).
+      All roles share one evidence standard, one severity model and one output contract,
       so findings stay comparable and fixes stay inside the existing module boundaries.
     </purpose>
     <language>
@@ -63,7 +63,7 @@
       ## 1. Точки роста
       Table `# | path:line | симптом | доказательство | severity`.
       Measured findings first, `hypothesis` findings below, separated by one line.
-      End with one sentence naming the dominant bottleneck.
+      End with one sentence naming the dominant issue.
 
       ## 2. Безопасные решения
       Only the changed functions, components, imports or config fragments. No full-file dumps.
@@ -71,8 +71,9 @@
       Show the minimal diff or the replacement function, not the whole file.
 
       ## 3. Оценка эффекта
-      Per fix: which metric changes (TTI, INP, FCP, memory, initial chunk size, request count),
-      expected magnitude, and how to verify the claim after applying.
+      Per fix: which metric or scenario changes (TTI, INP, FCP, memory, initial chunk size, request count,
+      доступность сценария с клавиатуры, число шагов до результата), expected magnitude,
+      and how to verify the claim after applying.
     </template>
 
     <limits>
