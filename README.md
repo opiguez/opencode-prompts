@@ -41,7 +41,9 @@ opencode-prompts/
     ├── angular_expert/references/{setup,performance}.md  # Настройка проекта и каталог правил производительности
     ├── ui_design.xml              # Правила дизайна: токены, иерархия, состояния, motion
     ├── ui_design/SKILL.md         # Нативный пакет скила для инструмента `skill` в OpenCode v2
-    └── ui_design/references/      # plan-template.md, motion.md, setup.md (Playwright MCP)
+    ├── ui_design/references/      # plan-template.md, motion.md, setup.md (Playwright MCP)
+    ├── sketch_design.xml          # Разбор .sketch: спеки, токены, компоненты, нарезка для Figma
+    └── sketch_design/{SKILL.md,scripts/sketch.mjs,references/spec-format.md}
 ```
 
 ### Роли модулей в пайплайне
@@ -56,6 +58,7 @@ opencode-prompts/
 | `prompts/bundle_core.xml` | **Audit (bundle)** | Tree shaking и barrel-файлы, route/component-level splitting, вес зависимостей и полифилов, CSS и ассеты, дубли пакетов. Только чтение. |
 | `prompts/ui_core.xml` | **Audit (UI)** | A11y и семантика, клавиатура и фокус, формы, анимация, контент, локаль, гидрация. Только чтение. |
 | `prompts/ui_designer_core.xml` | **Design (planner)** | Аудит существующей поверхности, направление для новой, motion. Пишет `design-plans/` со статусом и базовым коммитом, код не трогает. |
+| `skills/sketch_design.xml` | **Design (tool)** | Локальный разбор `.sketch` без Sketch и Figma: страницы, тексты, символы, токены, инвентарь компонентов и нарезка файлов для импорта. |
 | `skills/context_hygiene.xml` | **Plan + Build (Всегда)** | Высший приоритет (`CRITICAL`). Запрещает любые упоминания тикетов (`#123`, `issue`), PR, дат инцидентов, старого кода, `TODO`/`FIXME` и мусорных комментариев. |
 | `skills/solid_compliance.xml` | **Build (по выбору Plan)** | Контролирует SRP (отделение чистой логики от I/O), OCP (реестры/маппинги вместо `if/else`), LSP, ISP (узкие `Deps`-интерфейсы) и DIP. |
 | `skills/dry_kiss_clean.xml` | **Build (по выбору Plan)** | Контролирует единый источник истины (DRY), простоту решений (KISS), отсутствие кода «на будущее» (YAGNI), Guard Clauses и строгую типизацию без `any`. |
