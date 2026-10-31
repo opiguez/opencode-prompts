@@ -67,6 +67,19 @@ currentConfig.agents = {
     system:
       '{file:~/.config/opencode/prompts/build_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}\n{file:~/.config/opencode/skills/solid_compliance.xml}\n{file:~/.config/opencode/skills/dry_kiss_clean.xml}',
   },
+  'ui-designer': {
+    ...(currentConfig.agents?.['ui-designer'] ?? {}),
+    hidden: false,
+    mode: 'primary',
+    description:
+      'UI design planner: audits an existing surface, sets a direction for a new one, or plans motion. Writes design-plans/ for the builder, never touches source.',
+    system:
+      '{file:~/.config/opencode/prompts/ui_designer_core.xml}\n{file:~/.config/opencode/skills/context_hygiene.xml}\n{file:~/.config/opencode/skills/ui_design.xml}',
+    permissions: [
+      { action: 'edit', resource: '*', effect: 'deny' },
+      { action: 'edit', resource: 'design-plans/**', effect: 'allow' },
+    ],
+  },
   reviewer: {
     ...(currentConfig.agents?.reviewer ?? {}),
     hidden: false,
