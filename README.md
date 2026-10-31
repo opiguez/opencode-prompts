@@ -20,13 +20,15 @@ opencode-prompts/
 │   ├── audit_common.xml           # Общее ядро аудитов: read-only, доказательства, severity, формат отчёта
 │   ├── perf_core.xml              # Runtime-аудит: ререндеры, частотные события, гонки, утечки
 │   ├── bundle_core.xml            # Bundle-аудит: tree shaking, code splitting, зависимости, ассеты
-│   └── ui_core.xml                # UI-аудит: a11y, клавиатура и фокус, формы, анимация, i18n
+│   ├── ui_core.xml                # UI-аудит: a11y, клавиатура и фокус, формы, анимация, i18n
+│   └── ui_designer_core.xml       # Планировщик UI: аудит поверхности, новое направление, motion → design-plans/
 ├── commands/
 │   ├── review.md                  # Команда /review: diff в контекст + запуск ревьюера в дочерней сессии
 │   ├── refactor.md                # Команда /refactor: запуск рефакторинга в текущей сессии
 │   ├── perf.md                    # Команда /perf: runtime-аудит в дочерней сессии
 │   ├── bundle.md                  # Команда /bundle: bundle-аудит в дочерней сессии
-│   └── ui-audit.md                # Команда /ui-audit: UI-аудит в дочерней сессии
+│   ├── ui-audit.md                # Команда /ui-audit: UI-аудит в дочерней сессии
+│   └── design.md                  # Команда /design: планировщик UI в текущей сессии
 └── skills/
     ├── context_hygiene.xml        # [АКТИВЕН ВСЕГДА] Антидот против мета-контекста и мусорных комментариев
     ├── solid_compliance.xml       # Модуль архитектурной дисциплины и ООП (SOLID)
@@ -36,7 +38,10 @@ opencode-prompts/
     ├── solid_compliance/SKILL.md  # Нативный пакет скила для инструмента `skill` в OpenCode v2
     ├── dry_kiss_clean/SKILL.md    # Нативный пакет скила для инструмента `skill` в OpenCode v2
     ├── angular_expert/SKILL.md    # Нативный пакет скила для инструмента `skill` в OpenCode v2
-    └── angular_expert/references/{setup,performance}.md  # Настройка проекта и каталог правил производительности
+    ├── angular_expert/references/{setup,performance}.md  # Настройка проекта и каталог правил производительности
+    ├── ui_design.xml              # Правила дизайна: токены, иерархия, состояния, motion
+    ├── ui_design/SKILL.md         # Нативный пакет скила для инструмента `skill` в OpenCode v2
+    └── ui_design/references/      # plan-template.md и motion.md
 ```
 
 ### Роли модулей в пайплайне
@@ -50,6 +55,7 @@ opencode-prompts/
 | `prompts/perf_core.xml` | **Audit (runtime)** | Ререндеры и производные вычисления, стабильность ссылок, частотные события, структуры данных, гонки запросов, утечки, виртуализация списков. Только чтение. |
 | `prompts/bundle_core.xml` | **Audit (bundle)** | Tree shaking и barrel-файлы, route/component-level splitting, вес зависимостей и полифилов, CSS и ассеты, дубли пакетов. Только чтение. |
 | `prompts/ui_core.xml` | **Audit (UI)** | A11y и семантика, клавиатура и фокус, формы, анимация, контент, локаль, гидрация. Только чтение. |
+| `prompts/ui_designer_core.xml` | **Design (planner)** | Аудит существующей поверхности, направление для новой, motion. Пишет только `design-plans/`, код не трогает. |
 | `skills/context_hygiene.xml` | **Plan + Build (Всегда)** | Высший приоритет (`CRITICAL`). Запрещает любые упоминания тикетов (`#123`, `issue`), PR, дат инцидентов, старого кода, `TODO`/`FIXME` и мусорных комментариев. |
 | `skills/solid_compliance.xml` | **Build (по выбору Plan)** | Контролирует SRP (отделение чистой логики от I/O), OCP (реестры/маппинги вместо `if/else`), LSP, ISP (узкие `Deps`-интерфейсы) и DIP. |
 | `skills/dry_kiss_clean.xml` | **Build (по выбору Plan)** | Контролирует единый источник истины (DRY), простоту решений (KISS), отсутствие кода «на будущее» (YAGNI), Guard Clauses и строгую типизацию без `any`. |
@@ -94,7 +100,7 @@ opencode-prompts/
 
 ### Роли Review, Refactor и аудиты: почему агенты, а не скилы
 
-Ревью требует изолированного контекста (чтобы не оценивать собственные правки) и права только читать, поэтому роль оформлена агентом `reviewer` (`mode: subagent`). Рефакторинг меняет файлы и должен уметь вести диалог по плану, поэтому `refactorer` — агент с `mode: all`. Аудиты производительности, бандла и интерфейса тоже только читают и потому живут как субагенты. Команды `/review`, `/refactor`, `/perf`, `/bundle`, `/ui-audit` — ярлыки запуска.
+Ревью требует изолированного контекста (чтобы не оценивать собственные правки) и права только читать, поэтому роль оформлена агентом `reviewer` (`mode: subagent`). Рефакторинг меняет файлы и должен уметь вести диалог по плану, поэтому `refactorer` — агент с `mode: all`. Аудиты производительности, бандла и интерфейса тоже только читают и потому живут как субагенты. Планировщик UI — primary-агент `ui-designer`: он ведёт дизайн-диалог и пишет план, поэтому его выбирают вручную, как `plan`. Команды `/review`, `/refactor`, `/perf`, `/bundle`, `/ui-audit`, `/design` — ярлыки запуска.
 
 | Механизм | Что даёт | Ограничение |
 | :--- | :--- | :--- |
@@ -108,6 +114,7 @@ opencode-prompts/
 - `/refactor <путь>` — запускает `refactorer` в текущей сессии, чтобы план и правки шли в одном диалоге. Без аргумента выбираются самые крупные файлы.
 - `/perf [цель]` и `/bundle [цель]` — дочерняя сессия с аудитором; без аргумента аудит идёт по изменениям в рабочем дереве.
 - `/ui-audit [цель]` — дочерняя сессия с UI-аудитором.
+- `/design [поверхность]` — планировщик UI в текущей сессии: разбор, находки, план в `design-plans/`.
 - «Запусти ревьюера на текущий диф» — primary-агент сам вызовет субагента.
 - `@` в OpenCode адресует файлы и скилы (`@angular_expert`), но не агентов: `@reviewer` не сработает.
 
@@ -123,7 +130,7 @@ opencode-prompts/
 
 Склеенный промт смешивает методики: `memo` вместо размера чанка, ленивую загрузку вместо устранения гонки, `aria-label` вместо виртуализации. Поэтому — три тонких промта на общем ядре `prompts/audit_common.xml`: read-only, `path:line`, severity, единый формат. Ядро меняется один раз и действует на все аудиты.
 
-`install.mjs` копирует `commands/` в `~/.config/opencode/commands` и регистрирует агентов: `reviewer`, `perf-auditor`, `bundle-auditor` и `ui-auditor` — с запретом `edit`; `refactorer` — со скилами SOLID и DRY в системном промте.
+`install.mjs` копирует `commands/` в `~/.config/opencode/commands` и регистрирует агентов: `reviewer`, `perf-auditor`, `bundle-auditor` и `ui-auditor` — с запретом `edit`; `ui-designer` — primary с записью только в `design-plans/`; `refactorer` — со скилами SOLID и DRY в системном промте.
 
 ---
 
@@ -218,4 +225,4 @@ opencode service restart
 
 ## Источники
 
-Каталог производительности — адаптация [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (MIT, © Vercel); чеклист UI — [web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines) (MIT, © Vercel); API и версии Angular — [angular.dev](https://angular.dev).
+Каталог производительности — адаптация [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (MIT, © Vercel); чеклист UI — [web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines) (MIT, © Vercel); планировщик — по мотивам [ibelick/ui-skills](https://github.com/ibelick/ui-skills), [emilkowalski/skills](https://github.com/emilkowalski/skills) (MIT) и [anthropics/skills](https://github.com/anthropics/skills) (Apache-2.0); API и версии Angular — [angular.dev](https://angular.dev).
